@@ -1,22 +1,28 @@
 {
   "expo": {
-    "name": "test",
-    "slug": "test",
+    "name": "nodara",
+    "slug": "nodara",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "test",
+    "scheme": "nodara",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
+    },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/f733fea4-c38c-4e58-a4d5-e7da02fc3664"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.priyansh.ptl18.nodara"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +43,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f733fea4-c38c-4e58-a4d5-e7da02fc3664"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
     }
   }
 }
