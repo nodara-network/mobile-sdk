@@ -13,12 +13,43 @@ export interface SolanaWallet {
 export type WalletProvider = 'Phantom' | 'Solflare' | 'Backpack';
 
 export interface WalletContextType {
-  wallet: SolanaWallet | null;
+  // Basic wallet state
+  wallet: any;
   walletAddress: string | null;
   isConnecting: boolean;
-  availableWallets: WalletProvider[];
+  isConnected: boolean;
+  availableWallets: string[];
+  
+  // Authentication state
+  authenticated: boolean;
+  user: any;
+  connection: any;
+  
+  // Wallet management
+  selectedWalletType?: 'embedded' | 'external';
+  embeddedWallet?: any;
+  externalWallet?: any;
+  
+  // External wallet specific
+  isPhantomAvailable?: boolean;
+  
+  // Actions
+  connect: () => void;
+  disconnect: () => Promise<void>;
+  disconnectExternalWallet?: () => Promise<void>;
+  createEmbeddedWallet?: () => Promise<void>;
+  connectExternalSolanaWallet?: () => Promise<void>;
   connectWallet: (walletName: WalletProvider) => Promise<void>;
   disconnectWallet: () => Promise<void>;
+  setSelectedWalletType?: (type: 'embedded' | 'external') => void;
+  
+  // Blockchain operations
+  getBalance?: () => Promise<number>;
+  getTransactionHistory?: (limit?: number) => Promise<any[]>;
+  signMessage?: (message: string) => Promise<string | null>;
+  signAndSendTransaction?: (transaction: any) => Promise<string | null>;
+  
+  // UI state
   showWalletModal: boolean;
   setShowWalletModal: (show: boolean) => void;
 }
@@ -146,13 +177,5 @@ export type ExportFormat = 'csv' | 'json' | 'pdf';
 export type ThemePreference = 'light' | 'dark' | 'auto';
 export type NetworkType = 'mainnet' | 'devnet';
 
-declare global {
-  interface Window {
-    solana?: SolanaWallet;
-    phantom?: {
-      solana?: SolanaWallet;
-    };
-    solflare?: SolanaWallet;
-    backpack?: SolanaWallet;
-  }
-} 
+// Note: Global window interface declarations are handled in useExternalWallet.ts
+// to avoid conflicts with other type declarations 

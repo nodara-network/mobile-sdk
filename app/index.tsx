@@ -15,6 +15,7 @@ import { Link, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as WebBrowser from "expo-web-browser";
+import { useLoginWithEmail, usePrivy } from '@privy-io/expo';
 import GradientBars from "@/components/ui/GradientBars";
 
 const windowDimensions = Dimensions.get("window");
@@ -95,99 +96,155 @@ function TrustElements() {
 
 function AuthForm() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeSent, setCodeSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { user } = usePrivy();
+  const authenticated = !!user;
+  const { sendCode, loginWithCode } = useLoginWithEmail();
 
-  const handleSubmit = async () => {
+  // If user is already authenticated, show success state
+  if (authenticated && user) {
+    return (
+      <View style={styles.formContainer}>
+        <View style={styles.successContainer}>
+          <Text style={styles.successText}>
+            Welcome back! You're signed in
+          </Text>
+        </View>
+        
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={() => router.push("/(tabs)/dashboard")}
+        >
+          <Text style={styles.submitButtonText}>Go to Dashboard</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const handleSendCode = async () => {
     if (!email || !email.includes("@")) {
       Alert.alert("Error", "Please enter a valid email");
       return;
     }
 
-    if (!password || password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+    setIsSubmitting(true);
+    try {
+      await sendCode({ email });
+      setCodeSent(true);
+      Alert.alert("Success", "Verification code sent to your email!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to send verification code. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleLoginWithCode = async () => {
+    if (!code || code.length < 6) {
+      Alert.alert("Error", "Please enter the 6-digit verification code");
       return;
     }
 
     setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await loginWithCode({ code, email });
+      Alert.alert("Success", "Successfully signed in!", [
+        {
+          text: "Go to Dashboard",
+          onPress: () => router.push("/(tabs)/dashboard"),
+        },
+      ]);
+    } catch (error) {
+      Alert.alert("Error", "Invalid verification code. Please try again.");
+    } finally {
       setIsSubmitting(false);
-      Alert.alert(
-        "Success",
-        isSignUp ? "Account created successfully!" : "Welcome back!",
-        [
-          {
-            text: "Go to Dashboard",
-            onPress: () => {
-              router.push("/(tabs)/dashboard");
-            },
-          },
-        ]
-      );
-    }, 1000);
+    }
   };
 
   return (
     <View style={styles.formContainer}>
       <Text style={styles.formTitle}>
-        {isSignUp ? "Create Account" : "Welcome Back"}
+        {codeSent ? "Enter Verification Code" : "Welcome to Nodara"}
       </Text>
       <Text style={styles.formSubtitle}>
-        {isSignUp ? "Join the Nodara Network" : "Sign in to your account"}
+        {codeSent 
+          ? `We sent a 6-digit code to ${email}` 
+          : "Sign in with your email address"}
       </Text>
 
-      <TextInput
-        style={styles.emailInput}
-        value={email}
-        onChangeText={setEmail}
-        placeholder="Enter Your Email"
-        placeholderTextColor="#9ca3af"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+      {!codeSent ? (
+        <>
+          <TextInput
+            style={styles.emailInput}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter Your Email"
+            placeholderTextColor="#9ca3af"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
 
-      <TextInput
-        style={styles.passwordInput}
-        value={password}
-        onChangeText={setPassword}
-        placeholder="Enter Your Password"
-        placeholderTextColor="#9ca3af"
-        secureTextEntry
-        autoCapitalize="none"
-        autoCorrect={false}
-      />
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              isSubmitting && styles.submitButtonDisabled,
+            ]}
+            onPress={handleSendCode}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="#111827" />
+            ) : (
+              <Text style={styles.submitButtonText}>Send Code</Text>
+            )}
+          </TouchableOpacity>
+        </>
+      ) : (
+        <>
+          <TextInput
+            style={styles.emailInput}
+            value={code}
+            onChangeText={setCode}
+            placeholder="Enter 6-digit code"
+            placeholderTextColor="#9ca3af"
+            keyboardType="number-pad"
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={6}
+          />
 
-      <TouchableOpacity
-        style={[
-          styles.submitButton,
-          isSubmitting && styles.submitButtonDisabled,
-        ]}
-        onPress={handleSubmit}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <ActivityIndicator size="small" color="#111827" />
-        ) : (
-          <Text style={styles.submitButtonText}>
-            {isSignUp ? "Create Account" : "Sign In"}
-          </Text>
-        )}
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              isSubmitting && styles.submitButtonDisabled,
+            ]}
+            onPress={handleLoginWithCode}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator size="small" color="#111827" />
+            ) : (
+              <Text style={styles.submitButtonText}>Sign In</Text>
+            )}
+          </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.toggleButton}
-        onPress={() => setIsSignUp(!isSignUp)}
-      >
-        <Text style={styles.toggleButtonText}>
-          {isSignUp
-            ? "Already have an account? Sign In"
-            : "New to Nodara? Create Account"}
-        </Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={() => {
+              setCodeSent(false);
+              setCode("");
+            }}
+          >
+            <Text style={styles.toggleButtonText}>
+              Use a different email
+            </Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }

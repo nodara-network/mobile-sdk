@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import WalletButton from "@/components/WalletButton";
+import TransactionHistory from "@/components/TransactionHistory";
 import AnalyticsOverview from "@/components/dashboard/AnalyticsOverview";
 import ServicesOverview from "@/components/dashboard/ServicesOverview";
 import DevicesOverview from "@/components/dashboard/DevicesOverview";
@@ -49,6 +50,10 @@ export default function Dashboard() {
               <Text style={styles.featureTagText}>Pay-per-use</Text>
             </View>
           </View>
+        </View>
+
+        <View style={styles.transactionSection}>
+          <TransactionHistory />
         </View>
 
         <View style={styles.overviewGrid}>
@@ -121,6 +126,13 @@ const styles = StyleSheet.create({
     color: "#22d3ee",
     fontSize: 12,
     fontWeight: "500",
+  },
+  transactionSection: {
+    marginBottom: 32,
+    backgroundColor: 'rgba(17, 24, 39, 0.3)',
+    borderRadius: 16,
+    margin: 24,
+    maxHeight: 400,
   },
   overviewGrid: {
     paddingHorizontal: 24,

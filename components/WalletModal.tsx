@@ -77,12 +77,17 @@ export default function WalletModal() {
 
           <View style={styles.walletList}>
             {availableWallets.map((walletName) => {
-              const wallet = walletInfo[walletName];
+              const wallet = walletInfo[walletName as keyof typeof walletInfo] || {
+                name: walletName,
+                icon: 'wallet-outline',
+                description: `Connect using ${walletName}`,
+                color: '#22d3ee'
+              };
               return (
                 <TouchableOpacity
                   key={walletName}
                   style={styles.walletOption}
-                  onPress={() => handleWalletSelect(walletName)}
+                  onPress={() => handleWalletSelect(walletName as WalletProvider)}
                   disabled={isConnecting}
                 >
                   <View style={[styles.walletIcon, { backgroundColor: `${wallet.color}20` }]}>

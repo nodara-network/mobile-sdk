@@ -1,11 +1,11 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { useWalletConnection } from '@/hooks/useWalletConnection';
+import { usePrivySolanaWallet } from '@/hooks/usePrivySolanaWallet';
 import type { WalletContextType } from '@/types/wallet';
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
-  const walletState = useWalletConnection();
+  const walletState = usePrivySolanaWallet();
 
   return (
     <WalletContext.Provider value={walletState}>

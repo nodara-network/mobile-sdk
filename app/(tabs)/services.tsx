@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ServiceCard from '@/components/ui/ServiceCard';
+import SolanaTransactionDemo from '@/components/SolanaTransactionDemo';
 
 const { width } = Dimensions.get('window');
 
@@ -59,6 +60,8 @@ export default function Services() {
             description="Real-time monitoring of service quality and latency"
           />
         </View>
+
+        <SolanaTransactionDemo />
 
         <View style={styles.servicesGrid}>
           <ServiceCard
